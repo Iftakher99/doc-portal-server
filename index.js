@@ -21,6 +21,50 @@ client.connect((err) => {
       res.send(result.insertedCount > 0);
     });
   });
+  app.get("/appointments", (req, res) => {
+    appointmentCollection.find({}).toArray((err, documents) => {
+      res.send(documents);
+    });
+  });
+  app.post("/appointmentByDate", (req, res) => {
+    const date = req.body;
+    console.log(date.date);
+    appointmentCollection
+      .find({ date: date.date })
+      .toArray((err, documents) => {
+        res.send(documents);
+      });
+  });
+  app.post("/addADoctor", (req, res) => {
+    const file = req.files.file;
+    const name = req.body.name;
+    const email = req.body.email;
+    const newImg = file.data;
+    const encImg = newImg.toString("base64");
+
+    var image = {
+      contentType: file.mimetype,
+      size: file.size,
+      img: Buffer.from(encImg, "base64"),
+    };
+
+    doctorCollection.insertOne({ name, email, image }).then((result) => {
+      res.send(result.insertedCount > 0);
+    });
+  });
+
+  app.get("/doctors", (req, res) => {
+    doctorCollection.find({}).toArray((err, documents) => {
+      res.send(documents);
+    });
+  });
+
+  app.post("/isDoctor", (req, res) => {
+    const email = req.body.email;
+    doctorCollection.find({ email: email }).toArray((err, doctors) => {
+      res.send(doctors.length > 0);
+    });
+  });
 });
 
 const app = express();
